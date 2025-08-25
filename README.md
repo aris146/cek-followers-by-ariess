@@ -10,3 +10,5 @@
 - Upload file index.html dan README.md
 - Masuk Settings -> Pages -> pilih branch main -> folder root
 - Akses via https://github.com/aris146/cek-followers-by-ariess.git
+
+https://aris146.github.io/cek-followers-by-ariess/
