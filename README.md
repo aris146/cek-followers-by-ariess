@@ -5,11 +5,8 @@
 2. Buka halaman web ini (setelah di-upload ke GitHub Pages)
 3. Upload kedua file tersebut, hasil akan tampil di layar.
 
-## Cara Hosting di GitHub Pages:
-- Buat repository baru di GitHub
-- Upload file index.html dan README.md
-- Masuk Settings -> Pages -> pilih branch main -> folder root
 - Akses via https://github.com/aris146/cek-followers-by-ariess.git
 
-
 https://aris146.github.io/cek-followers-by-ariess/
+
+follow instagram: @ariessafs
