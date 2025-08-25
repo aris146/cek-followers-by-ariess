@@ -1,41 +1,57 @@
-document.getElementById('cekBtn').addEventListener('click', () => {
-    const followersFile = document.getElementById('followersFile').files[0];
-    const followingFile = document.getElementById('followingFile').files[0];
+document.getElementById('checkBtn').addEventListener('click', () => {
+    const followerFile = document.getElementById('followers').files[0];
+    const followingFile = document.getElementById('following').files[0];
 
-    if (!followersFile || !followingFile) {
-        alert('Pilih kedua file (followers.json dan following.json) terlebih dahulu!');
+    if (!followerFile || !followingFile) {
+        alert('Harap upload kedua file JSON (followers dan following).');
         return;
     }
 
-    Promise.all([followersFile.text(), followingFile.text()])
-        .then(([followersText, followingText]) => {
-            try {
-                const followersData = JSON.parse(followersText);
-                const followingData = JSON.parse(followingText);
+    Promise.all([readFile(followerFile), readFile(followingFile)]).then(([followers, following]) => {
+        const followerList = extractUsernames(followers);
+        const followingList = extractUsernames(following);
 
-                // Ambil username dari followers
-                const followersList = followersData.map(item => 
-                    item.value || (item.string_list_data && item.string_list_data[0].value)
-                );
+        const notFollowingBack = followingList.filter(u => !followerList.includes(u));
+        const youDontFollowBack = followerList.filter(u => !followingList.includes(u));
 
-                // Ambil username dari following
-                const followingList = followingData.map(item => 
-                    item.value || (item.string_list_data && item.string_list_data[0].value)
-                );
-
-                // Cari akun yang tidak follback
-                const followersSet = new Set(followersList);
-                const notFollowingBack = followingList.filter(user => !followersSet.has(user));
-
-                const hasilDiv = document.getElementById('hasil');
-                if (notFollowingBack.length === 0) {
-                    hasilDiv.innerHTML = "<b>Semua mengikuti kamu balik.</b>";
-                } else {
-                    hasilDiv.innerHTML = "<b>Tidak follback:</b><br>" + notFollowingBack.join("<br>");
-                }
-            } catch (err) {
-                alert('Format file salah atau tidak dapat dibaca.');
-            }
-        })
-        .catch(() => alert('Terjadi kesalahan saat membaca file.'));
+        document.getElementById('result').innerHTML = `
+            <h3>Tidak Follback Kamu:</h3>
+            <p>${notFollowingBack.join(', ') || 'Tidak ada'}</p>
+            <h3>Kamu Tidak Follback:</h3>
+            <p>${youDontFollowBack.join(', ') || 'Tidak ada'}</p>
+        `;
+    }).catch(err => alert('Gagal membaca file: ' + err));
 });
+
+function readFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                resolve(JSON.parse(e.target.result));
+            } catch (err) {
+                reject(err);
+            }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(file);
+    });
+}
+
+// Fungsi fleksibel untuk ambil username dari berbagai format JSON Instagram
+function extractUsernames(json) {
+    let usernames = [];
+
+    // Format lama: { relationships_followers: [ { string_list_data: [ { value: "username" } ] } ] }
+    if (json.relationships_followers || json.relationships_following) {
+        const key = json.relationships_followers ? 'relationships_followers' : 'relationships_following';
+        usernames = json[key].map(item => item.string_list_data?.[0]?.value).filter(Boolean);
+    }
+
+    // Format baru: langsung array objek dengan { title: "username" } atau { value: "username" }
+    else if (Array.isArray(json)) {
+        usernames = json.map(item => item.value || item.title || item.string_list_data?.[0]?.value).filter(Boolean);
+    }
+
+    return usernames.map(u => u.toLowerCase());
+}
