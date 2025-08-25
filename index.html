@@ -3,18 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cek Follback Instagram</title>
+    <title>Cek Followers & Following Instagram</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-width: 500px;
+            margin: auto;
+        }
+        input {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            text-align: left;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Cek Akun yang Tidak Follback</h2>
-    <p>Upload file <b>followers.json</b> dan <b>following.json</b> dari data Instagram kamu:</p>
-
-    <input type="file" id="followersFile" accept=".json"><br><br>
-    <input type="file" id="followingFile" accept=".json"><br><br>
-
-    <button id="cekBtn">Cek</button>
-    <div id="hasil" style="margin-top:20px;"></div>
-
+    <div class="box">
+        <h1>Cek Siapa yang Tidak Follback</h1>
+        <p>Upload file <b>followers_1.json</b> dan <b>following.json</b> dari data Instagram kamu.</p>
+        <input type="file" id="followers" accept=".json">
+        <input type="file" id="following" accept=".json">
+        <button id="checkBtn">Cek</button>
+        <div id="result"></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
