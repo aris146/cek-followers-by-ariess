@@ -1,46 +1,41 @@
-document.getElementById("cekBtn").addEventListener("click", function () {
-    const fileInput = document.getElementById("fileInput");
-    const hasilDiv = document.getElementById("hasil");
+document.getElementById('cekBtn').addEventListener('click', () => {
+    const followersFile = document.getElementById('followersFile').files[0];
+    const followingFile = document.getElementById('followingFile').files[0];
 
-    if (fileInput.files.length === 0) {
-        hasilDiv.innerText = "Pilih file JSON Instagram terlebih dahulu!";
+    if (!followersFile || !followingFile) {
+        alert('Pilih kedua file (followers.json dan following.json) terlebih dahulu!');
         return;
     }
 
-    const file = fileInput.files[0];
-    const reader = new FileReader();
+    Promise.all([followersFile.text(), followingFile.text()])
+        .then(([followersText, followingText]) => {
+            try {
+                const followersData = JSON.parse(followersText);
+                const followingData = JSON.parse(followingText);
 
-    reader.onload = function (event) {
-        try {
-            const data = JSON.parse(event.target.result);
+                // Ambil username dari followers
+                const followersList = followersData.map(item => 
+                    item.value || (item.string_list_data && item.string_list_data[0].value)
+                );
 
-            // Ambil followers & following
-            let followers = [];
-            let following = [];
+                // Ambil username dari following
+                const followingList = followingData.map(item => 
+                    item.value || (item.string_list_data && item.string_list_data[0].value)
+                );
 
-            if (Array.isArray(data.followers)) {
-                followers = data.followers.map(item => item.value || item.username || item.string_list_data?.[0]?.value || item);
+                // Cari akun yang tidak follback
+                const followersSet = new Set(followersList);
+                const notFollowingBack = followingList.filter(user => !followersSet.has(user));
+
+                const hasilDiv = document.getElementById('hasil');
+                if (notFollowingBack.length === 0) {
+                    hasilDiv.innerHTML = "<b>Semua mengikuti kamu balik.</b>";
+                } else {
+                    hasilDiv.innerHTML = "<b>Tidak follback:</b><br>" + notFollowingBack.join("<br>");
+                }
+            } catch (err) {
+                alert('Format file salah atau tidak dapat dibaca.');
             }
-            if (Array.isArray(data.following)) {
-                following = data.following.map(item => item.value || item.username || item.string_list_data?.[0]?.value || item);
-            }
-
-            followers = [...new Set(followers)];
-            following = [...new Set(following)];
-
-            const notFollowBack = following.filter(user => !followers.includes(user));
-
-            hasilDiv.innerHTML = `
-                <p>Jumlah Followers: <b>${followers.length}</b></p>
-                <p>Jumlah Following: <b>${following.length}</b></p>
-                <p>Yang tidak follow balik: <b>${notFollowBack.length}</b></p>
-                <hr>
-                <p>${notFollowBack.join("<br>")}</p>
-            `;
-        } catch (err) {
-            hasilDiv.innerText = "File tidak valid atau format JSON tidak sesuai.";
-        }
-    };
-
-    reader.readAsText(file);
+        })
+        .catch(() => alert('Terjadi kesalahan saat membaca file.'));
 });
