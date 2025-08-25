@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cek Followers & Following</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    input { margin: 10px 0; }
+    .result { margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>Cek Followers vs Following</h2>
+  <p>Upload file followers_1.json dan following.json dari Instagram kamu:</p>
+  
+  <input type="file" id="followersFile" accept=".json"><br>
+  <input type="file" id="followingFile" accept=".json"><br>
+  <button id="cekBtn">Cek</button>
+  
+  <div class="result" id="result"></div>
+
+  <script>
+    document.getElementById('cekBtn').addEventListener('click', async () => {
+      const followersFile = document.getElementById('followersFile').files[0];
+      const followingFile = document.getElementById('followingFile').files[0];
+      const resultDiv = document.getElementById('result');
+
+      if (!followersFile || !followingFile) {
+        alert('Pilih kedua file JSON terlebih dahulu.');
+        return;
+      }
+
+      const readJson = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(JSON.parse(e.target.result));
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+
+      const followersData = await readJson(followersFile);
+      const followingData = await readJson(followingFile);
+
+      const followers = followersData.map(item => item.string_list_data[0].value);
+      const following = followingData.map(item => item.string_list_data[0].value);
+
+      const notFollowingBack = following.filter(user => !followers.includes(user));
+      const notFollowedBack = followers.filter(user => !following.includes(user));
+
+      resultDiv.textContent =
+        `Tidak follow balik kamu (${notFollowingBack.length}):\n${notFollowingBack.join(', ')}\n\n` +
+        `Kamu belum follow balik (${notFollowedBack.length}):\n${notFollowedBack.join(', ')}`;
+    });
+  </script>
+</body>
+</html>
